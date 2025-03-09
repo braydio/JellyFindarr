@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prowlarr Request App</title>
+</head>
+<body>
+    <h1>Prowlarr Request App</h1>
+
+    <h2>Request a TV Show</h2>
+    <input type="text" id="tvShowInput" placeholder="Enter TV Show Name">
+    <button onclick="requestMedia('tv')">Request TV Show</button>
+
+    <h2>Request a Movie</h2>
+    <input type="text" id="movieInput" placeholder="Enter Movie Name">
+    <button onclick="requestMedia('movie')">Request Movie</button>
+
+    <script>
+        async function requestMedia(type) {
+            let query = document.getElementById(type === 'tv' ? "tvShowInput" : "movieInput").value;
+            if (!query) return alert("Please enter a name");
+
+            let response = await fetch("http://localhost:5000/request", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query, type })
+            });
+
+            let result = await response.json();
+            alert(result.message || result.error);
+        }
+    </script>
+</body>
+</html>
+  <script>
+      async function requestMedia(type) {
+          let query = document.getElementById(type === 'tv' ? "tvShowInput" : "movieInput").value;
+          if (!query) return alert("Please enter a name");
+
+          let response = await fetch("http://localhost:5000/request", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ query, type })
+          });
+
+          let result = await response.json();
+          alert(result.message || result.error);
+      }
+  </script>
+  </html>
