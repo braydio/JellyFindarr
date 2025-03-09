@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servarr Request App</title>
+</head>
+<body>
+    <h1>Servarr Request App</h1>
+
+    <h2>Search for a TV Show</h2>
+    <input type="text" id="tvShowInput" placeholder="Enter TV Show Name">
+    <button onclick="searchMedia('tv')">Search TV Show</button>
+    <ul id="tvShowResults"></ul>
+
+    <h2>Search for a Movie</h2>
+    <input type="text" id="movieInput" placeholder="Enter Movie Name">
+    <button onclick="searchMedia('movie')">Search Movie</button>
+    <ul id="movieResults"></ul>
+
+    <script>
+        async function searchMedia(type) {
+            let query = document.getElementById(type === 'tv' ? "tvShowInput" : "movieInput").value;
+            if (!query.trim()) return alert("Please enter a name");
+
+            try {
+                let response = await fetch(`http://localhost:5505/search?query=${encodeURIComponent(query)}&type=${type}`);
+                let results = await response.json();
+
+                let resultList = document.getElementById(type === 'tv' ? "tvShowResults" : "movieResults");
+                resultList.innerHTML = ""; // Clear previous results
+
+                if (results.error || results.length === 0) {
+                    resultList.innerHTML = `<li>No results found</li>`;
+                    return;
+                }
+
+                results.forEach(item => {
+                    let listItem = document.createElement("li");
+                    listItem.textContent = `${item.title} (${item.year || "Unknown Year"})`;
+                    listItem.style.cursor = "pointer";
+                    listItem.onclick = () => requestMedia(item.id, item.title, item.year, type);
+                    resultList.appendChild(listItem);
+                });
+
+                // Clear input after search
+                document.getElementById(type === 'tv' ? "tvShowInput" : "movieInput").value = "";
+
+            } catch (error) {
+                alert("Failed to search. Ensure the backend is running.");
+            }
+        }
+
+        async function requestMedia(id, title, year, type) {
+            if (!id) return alert("Invalid selection.");
+
+            try {
+                let response = await fetch("http://localhost:5505/request", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id, title, year, type })
+                });
+
+                let result = await response.json();
+                alert(result.message || "Error: " + JSON.stringify(result.error));
+
+                // Clear results after successful request
+                if (result.message) {
+                    document.getElementById(type === 'tv' ? "tvShowResults" : "movieResults").innerHTML = "";
+                }
+
+            } catch (error) {
+                alert("Failed to send request.");
+            }
+        }
+    </script>
+</body>
+</html>
+
