@@ -196,24 +196,19 @@ function goBackToHome() {
 }
 
 // Attach event listeners dynamically
-function attachEventListeners() {
-    document.querySelectorAll(".details-btn").forEach(button => {
-        button.addEventListener("click", (event) => {
-            const item = JSON.parse(event.target.dataset.item);
-            showDetails(item);
-        });
-    });
+document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("details-btn")) {
+        const item = JSON.parse(event.target.dataset.item);
+        showDetails(item);
+    } else if (event.target.classList.contains("request-btn")) {
+        const id = event.target.dataset.id;
+        const title = event.target.dataset.title;
+        const year = event.target.dataset.year;
+        const type = event.target.dataset.type;
+        requestMedia(id, title, year, type);
+    }
+});
 
-    document.querySelectorAll(".request-btn").forEach(button => {
-        button.addEventListener("click", (event) => {
-            const id = event.target.dataset.id;
-            const title = event.target.dataset.title;
-            const year = event.target.dataset.year;
-            const type = event.target.dataset.type;
-            requestMedia(id, title, year, type);
-        });
-    });
-}
 
 // Export functions so they can be used in other modules if needed
 export { searchMedia, changePage, showDetails, closeModal, requestMedia, goBackToHome };
