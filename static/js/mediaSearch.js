@@ -25,9 +25,8 @@ async function searchMedia(type, page) {
         results.items.forEach(item => {
             // Ensure the item has the type property for later use
             item.type = type;
-            let listItem = document.createElement("li");
             listItem.innerHTML = `${item.title} (${item.year || "Unknown Year"}) 
-                <button class="details-btn" data-item='${JSON.stringify(item)}'>Details</button> 
+                <button class="details-btn" data-item='${encodeURIComponent(JSON.stringify(item))}'>Details</button> 
                 <button class="request-btn" data-id="${item.id}" data-title="${item.title}" data-year="${item.year}" data-type="${type}">Request</button>`;
             resultList.appendChild(listItem);
         });
@@ -165,22 +164,23 @@ function showDetails(item) {
         document.getElementById("detailsModal").appendChild(requestModalBtn);
     }
     // Remove any previous event listeners on the modal request button
-    requestModalBtn.replaceWith(requestModalBtn.cloneNode(true));
-    requestModalBtn = document.getElementById("modalRequestBtn");
-    requestModalBtn.addEventListener("click", () => {
-        if (item.type === "tv") {
-            // For TV shows, collect selected seasons from the form
-            const selectedSeasons = Array.from(document.querySelectorAll("#seasonForm input[name='season']:checked")).map(cb => cb.value);
-            if (selectedSeasons.length === 0) {
-                return alert("Please select at least one season.");
-            }
-            requestMedia(item.id, item.title, item.year, "tv", selectedSeasons);
-        } else {
-            // For movies, no extra info needed
-            requestMedia(item.id, item.title, item.year, "movie");
-        }
-    });
 
+      
+      let newRequestBtn = requestModalBtn.cloneNode(true);
+      requestModalBtn.replaceWith(newRequestBtn);
+
+      // Reattach event listener to the new button
+      newRequestBtn.addEventListener("click", () => {
+          if (item.type === "tv") {
+              const selectedSeasons = Array.from(document.querySelectorAll("#seasonForm input[name='season']:checked")).map(cb => cb.value);
+              if (selectedSeasons.length === 0) {
+                  return alert("Please select at least one season.");
+              }
+              requestMedia(item.id, item.title, item.year, "tv", selectedSeasons);
+          } else {
+              requestMedia(item.id, item.title, item.year, "movie");
+          }
+      });
     // Show the modal
     document.getElementById("detailsModal").style.display = "block";
 }
@@ -198,7 +198,7 @@ function goBackToHome() {
 // Attach event listeners dynamically
 document.addEventListener("click", function (event) {
     if (event.target.classList.contains("details-btn")) {
-        const item = JSON.parse(event.target.dataset.item);
+        const item = JSON.parse(decodeURIComponent(event.target.dataset.item));
         showDetails(item);
     } else if (event.target.classList.contains("request-btn")) {
         const id = event.target.dataset.id;
@@ -208,7 +208,6 @@ document.addEventListener("click", function (event) {
         requestMedia(id, title, year, type);
     }
 });
-
 
 // Export functions so they can be used in other modules if needed
 export { searchMedia, changePage, showDetails, closeModal, requestMedia, goBackToHome };
