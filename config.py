@@ -3,18 +3,6 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Initialize environment
-load_dotenv()
-
-BASE_DIR = Path(__file__).resolve().parent
-INDEX_PATH = "index.html"
-
-# Sonarr & Radarr Config
-SONARR_URL = "http://192.168.1.85:8989"  # Adjust port if needed
-RADARR_URL = "http://192.168.1.85:7878"   # Adjust port if needed
-SONARR_API_KEY = os.getenv("SONARR_API_KEY")
-RADARR_API_KEY = os.getenv("RADARR_API_KEY")
-
 # Set up logging
 def setup_logger():
     logger = logging.getLogger(__name__)
@@ -42,3 +30,17 @@ def setup_logger():
         return logger
 
 logger = setup_logger()
+
+# Initialize environment
+load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent
+INDEX_PATH = "index.html"
+
+# Sonarr & Radarr Config
+SONARR_URL = os.getenv("SONARR_WEB_URL", "localhost:8989")  # Adjust port if needed
+RADARR_URL = os.getenv("RADARR_WEB_URL", "localhost:7878")  # Adjust port if needed
+SONARR_API_KEY = os.getenv("SONARR_API_KEY")
+RADARR_API_KEY = os.getenv("RADARR_API_KEY")
+
+logger.debug(f"IP Addies: {SONARR_URL}  {RADARR_URL}")

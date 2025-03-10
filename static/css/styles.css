@@ -1,0 +1,215 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+/* Color Palette: Deep blacks, off‑white accents, and subtle gray borders */
+:root {
+  --bg: #0a0a0a;             /* near-black background */
+  --container-bg: rgba(10,10,10,0.95);
+  --text: #e8e8e8;           /* off‑white text */
+  --accent: #c0c0c0;         /* light gray accents */
+  --border: #333333;         /* dark gray borders */
+  --hover: #555555;          /* slightly lighter on hover */
+}
+
+/* Global Styles */
+body {
+  font-family: 'Share Tech Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Main Container */
+.container {
+  background: var(--container-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 30px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.05);
+  text-align: center;
+}
+
+/* Headings */
+h1 {
+  font-size: 2.5em;
+  color: var(--accent);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+h2 {
+  font-size: 1.4em;
+  color: var(--accent);
+  margin-bottom: 15px;
+}
+
+/* Input Fields */
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 5px var(--accent);
+}
+
+/* Buttons: no default border, minimalist border appears on hover */
+button {
+  padding: 10px 15px;
+  margin: 8px;
+  background: var(--bg);
+  border: none;
+  border-radius: 3px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+button:hover {
+  background: var(--hover);
+  border: 1px solid var(--accent);
+}
+
+button.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Back to Home Button */
+#backToHome {
+  display: none;
+  background: var(--accent);
+  color: var(--bg);
+  margin-top: 20px;
+}
+
+#backToHome:hover {
+  background: var(--hover);
+  border: 1px solid var(--accent);
+}
+
+/* List Styling */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  margin: 8px 0;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+/* Ensure title and actions align opposite each other */
+li .title {
+  flex: 1;
+  text-align: left;
+}
+
+li .actions {
+  display: flex;
+  gap: 5px;
+}
+
+/* Details Modal Styling */
+#detailsModal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--container-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 30px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  color: var(--text);
+  display: none;
+  text-align: center;
+  z-index: 1000;
+}
+
+/* Modal overlay via pseudo-element */
+#detailsModal::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: -1;
+}
+
+#detailsModal h2 {
+  margin-top: 0;
+  color: var(--accent);
+}
+
+#detailsModal img {
+  width: 200px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  margin: 15px auto;
+  display: block;
+}
+
+#detailsModal p {
+  margin: 10px 0;
+  color: var(--accent);
+}
+
+#detailsModal button {
+  margin-top: 20px;
+  background: var(--bg);
+  border: none;
+  border-radius: 3px;
+  color: var(--text);
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+#detailsModal button:hover {
+  background: var(--hover);
+  border: 1px solid var(--accent);
+}
+
+/* Extra Details (for season selection, etc.) */
+#extraDetails {
+  margin-top: 15px;
+  text-align: left;
+}
+
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+  .container {
+    width: 500px;
+  }
+}
+

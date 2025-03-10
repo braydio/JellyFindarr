@@ -13,12 +13,13 @@ CORS(app)
 def serve_index():
     return render_template("index.html")
 
-
 @app.route('/search', methods=['GET'])
 def search_media():
-    """Searches for a movie/TV show and returns a list of results."""
+    """Searches for a movie/TV show and returns paginated results."""
     query = request.args.get("query")
     media_type = request.args.get("type")
+    page = int(request.args.get("page", 1))
+    per_page = 10  # Show 10 results per page
 
     if not query or not media_type:
         return jsonify({"error": "Missing query or type"}), 400
@@ -31,20 +32,29 @@ def search_media():
         headers = {"X-Api-Key": RADARR_API_KEY}
 
     response = requests.get(url, headers=headers)
-    print("Search Response:", response.status_code, response.text)  # Log response
-
     if response.status_code != 200 or not response.json():
-        return jsonify([])
+        return jsonify({"items": [], "hasNextPage": False})
 
-    return jsonify([
-        {
-            "id": item.get("tvdbId") if media_type == "tv" else item.get("tmdbId"),
-            "title": item.get("title"),
-            "year": item.get("year", "N/A")
-        }
-        for item in response.json()
-    ])
+    results = response.json()
+    paginated_results = results[(page - 1) * per_page: page * per_page]
+    has_next_page = len(results) > page * per_page
 
+    return jsonify({
+        "items": [
+            {
+                "id": item.get("tvdbId") if media_type == "tv" else item.get("tmdbId"),
+                "title": item.get("title"),
+                "year": item.get("year", "N/A"),
+                "overview": item.get("overview", "No overview available."),
+                "poster": next((img["remoteUrl"] for img in item.get("images", []) if img["coverType"] == "poster"), None),
+                "genres": item.get("genres", []),
+                "ratings": item.get("ratings", {}),
+                "seasonCount": item.get("statistics", {}).get("seasonCount", "N/A")
+            }
+            for item in paginated_results
+        ],
+        "hasNextPage": has_next_page
+    })
 
 @app.route('/request', methods=['POST'])
 def request_media():

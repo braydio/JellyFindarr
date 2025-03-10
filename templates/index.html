@@ -2,112 +2,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Servarr Request App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Servarr Request App</h1>
-
-    <h2>Search for a TV Show</h2>
-    <input type="text" id="tvShowInput" placeholder="Enter TV Show Name">
-    <button onclick="searchMedia('tv', 1)">Search TV Show</button>
-    <ul id="tvShowResults"></ul>
-    <button id="prevTvPage" onclick="changePage('tv', -1)" disabled>Previous</button>
-    <button id="nextTvPage" onclick="changePage('tv', 1)" disabled>Next</button>
-
-    <h2>Search for a Movie</h2>
-    <input type="text" id="movieInput" placeholder="Enter Movie Name">
-    <button onclick="searchMedia('movie', 1)">Search Movie</button>
-    <ul id="movieResults"></ul>
-    <button id="prevMoviePage" onclick="changePage('movie', -1)" disabled>Previous</button>
-    <button id="nextMoviePage" onclick="changePage('movie', 1)" disabled>Next</button>
-
-    <div id="detailsModal" style="display: none;">
-        <h2 id="detailsTitle"></h2>
-        <img id="detailsPoster" style="width: 200px;">
-        <p id="detailsOverview"></p>
-        <p><strong>Year:</strong> <span id="detailsYear"></span></p>
-        <p><strong>Genres:</strong> <span id="detailsGenres"></span></p>
-        <p><strong>Ratings:</strong> <span id="detailsRatings"></span></p>
-        <p><strong>Seasons:</strong> <span id="detailsSeasons"></span></p>
-        <button onclick="closeModal()">Close</button>
+  <div class="container">
+    <h1>JellyFindarr</h1>
+    
+    <!-- TV Shows Section -->
+    <div id="tvContainer">
+      <h2>Search for a TV Show</h2>
+      <input type="text" id="tvShowInput" placeholder="Enter TV Show Name">
+      <button id="searchTv">Search TV Show</button>
+      <ul id="tvShowResults"></ul>
+      <button id="prevTvPage" disabled>Previous</button>
+      <button id="nextTvPage" disabled>Next</button>
     </div>
+    
+    <!-- Movies Section -->
+    <div id="movieContainer" >
+      <h2>Search for a Movie</h2>
+      <input type="text" id="movieInput" placeholder="Enter Movie Name">
+      <button id="searchMovie">Search Movie</button>
+      <ul id="movieResults"></ul>
+      <button id="prevMoviePage" disabled>Previous</button>
+      <button id="nextMoviePage" disabled>Next</button>
+    </div>
+    
+    <!-- Back to Home Button -->
+    <button id="backToHome" style="display: none;">Home</button>
+  </div>  
 
-    <script>
-        let currentPage = { tv: 1, movie: 1 };
+  <div id="detailsModal" style="display: none;">
+      <h2 id="detailsTitle"></h2>
+      <img id="detailsPoster" style="width: 200px;">
+      <p id="detailsOverview"></p>
+      <p><strong>Year:</strong> <span id="detailsYear"></span></p>
+      <p><strong>Genres:</strong> <span id="detailsGenres"></span></p>
+      <p><strong>Ratings:</strong> <span id="detailsRatings"></span></p>
+      <p><strong>Seasons:</strong> <span id="detailsSeasons"></span></p>
+      <button id="closeModal">Close</button>
+  </div>
 
-        async function searchMedia(type, page) {
-            let query = document.getElementById(type === 'tv' ? "tvShowInput" : "movieInput").value;
-            if (!query.trim()) return alert("Please enter a name");
+  <script type="module">
+    import { searchMedia, changePage, goBackToHome, closeModal } from "/static/js/mediaSearch.js";
 
-            try {
-                let response = await fetch(`http://localhost:5505/search?query=${encodeURIComponent(query)}&type=${type}&page=${page}`);
-                let results = await response.json();
+    // Toggle views on search button clicks
+    document.getElementById("searchTv").addEventListener("click", () => {
+      document.getElementById("tvContainer").style.display = "block";
+      document.getElementById("movieContainer").style.display = "none";
+      searchMedia('tv', 1);
+    });
+    document.getElementById("searchMovie").addEventListener("click", () => {
+      document.getElementById("movieContainer").style.display = "block";
+      document.getElementById("tvContainer").style.display = "none";
+      searchMedia('movie', 1);
+    });
 
-                let resultList = document.getElementById(type === 'tv' ? "tvShowResults" : "movieResults");
-                resultList.innerHTML = ""; // Clear previous results
+    // Pagination buttons
+    document.getElementById("prevTvPage").addEventListener("click", () => changePage('tv', -1));
+    document.getElementById("nextTvPage").addEventListener("click", () => changePage('tv', 1));
+    document.getElementById("prevMoviePage").addEventListener("click", () => changePage('movie', -1));
+    document.getElementById("nextMoviePage").addEventListener("click", () => changePage('movie', 1));
 
-                if (results.error || results.items.length === 0) {
-                    resultList.innerHTML = `<li>No results found</li>`;
-                    return;
-                }
-
-                results.items.forEach(item => {
-                    let listItem = document.createElement("li");
-                    listItem.innerHTML = `${item.title} (${item.year || "Unknown Year"}) 
-                        <button onclick="showDetails(${JSON.stringify(item).replace(/"/g, '&quot;')})">Details</button> 
-                        <button onclick="requestMedia('${item.id}', '${item.title}', '${item.year}', '${type}')">Request</button>`;
-                    resultList.appendChild(listItem);
-                });
-
-                // Handle pagination buttons
-                currentPage[type] = page;
-                document.getElementById(type === 'tv' ? "prevTvPage" : "prevMoviePage").disabled = page <= 1;
-                document.getElementById(type === 'tv' ? "nextTvPage" : "nextMoviePage").disabled = !results.hasNextPage;
-
-            } catch (error) {
-                alert("Failed to search. Ensure the backend is running.");
-            }
-        }
-
-        function changePage(type, direction) {
-            searchMedia(type, currentPage[type] + direction);
-        }
-
-        function showDetails(item) {
-            document.getElementById("detailsTitle").innerText = item.title;
-            document.getElementById("detailsPoster").src = item.poster || "https://via.placeholder.com/200";
-            document.getElementById("detailsOverview").innerText = item.overview || "No overview available.";
-            document.getElementById("detailsYear").innerText = item.year || "Unknown";
-            document.getElementById("detailsGenres").innerText = item.genres ? item.genres.join(", ") : "N/A";
-            document.getElementById("detailsRatings").innerText = item.ratings?.value ? `${item.ratings.value}/10` : "N/A";
-            document.getElementById("detailsSeasons").innerText = item.seasonCount || "N/A";
-            document.getElementById("detailsModal").style.display = "block";
-        }
-
-        function closeModal() {
-            document.getElementById("detailsModal").style.display = "none";
-        }
-
-        async function requestMedia(id, title, year, type) {
-            if (!id) return alert("Invalid selection.");
-
-            try {
-                let response = await fetch("http://localhost:5505/request", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id, title, year, type })
-                });
-
-                let result = await response.json();
-                alert(result.message || "Error: " + JSON.stringify(result.error));
-
-            } catch (error) {
-                alert("Failed to send request.");
-            }
-        }
-    </script>
+    // Back to Home (shows both sections again)
+    document.getElementById("backToHome").addEventListener("click", () => {
+      document.getElementById("tvContainer").style.display = "block";
+      document.getElementById("movieContainer").style.display = "block";
+      goBackToHome();
+    });
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+  </script>
 </body>
 </html>
 
