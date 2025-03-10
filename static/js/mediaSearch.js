@@ -29,26 +29,43 @@ async function searchMedia(type, page) {
                 <button class="details-btn" data-item='${encodeURIComponent(JSON.stringify(item))}'>Details</button> 
                 <button class="request-btn" data-id="${item.id}" data-title="${item.title}" data-year="${item.year}" data-type="${type}">Request</button>`;
             resultList.appendChild(listItem);
+        
+    try {
+        let response = await fetch(`/search?query=${encodeURIComponent(query)}&type=${type}&page=${page}`);
+        let results = await response.json();
+
+        let resultList = document.getElementById(type === 'tv' ? "tvShowResults" : "movieResults");
+        resultList.innerHTML = ""; // Clear previous results
+
+        if (results.error || results.items.length === 0) {
+            resultList.innerHTML = `<li>No results found</li>`;
+            return;
+        }
+
+        results.items.forEach(item => {
+            // Ensure the item has the type property for later use
+            item.type = type;
+            let listItem = document.createElement("li");
+            listItem.innerHTML = `${item.title} (${item.year || "Unknown Year"}) 
+                <button class="details-btn" data-item='${JSON.stringify(item)}'>Details</button> 
+                <button class="request-btn" data-id="${item.id}" data-title="${item.title}" data-year="${item.year}" data-type="${type}">Request</button>`;
+            resultList.appendChild(listItem);
         });
 
-        // Show Back to Home button
-        document.getElementById("backToHome").style.display = "block";
+    // Show Back to Home button
+    document.getElementById("backToHome").style.display = "block";
 
-        // Handle pagination buttons
-        currentPage[type] = page;
-        document.getElementById(type === 'tv' ? "prevTvPage" : "prevMoviePage").disabled = page <= 1;
-        document.getElementById(type === 'tv' ? "nextTvPage" : "nextMoviePage").disabled = !results.hasNextPage;
+    // Handle pagination buttons
+    currentPage[type] = page;
+    document.getElementById(type === 'tv' ? "prevTvPage" : "prevMoviePage").disabled = page <= 1;
+    document.getElementById(type === 'tv' ? "nextTvPage" : "nextMoviePage").disabled = !results.hasNextPage;
 
-        // Attach event listeners dynamically
-        attachEventListeners();
+    // Attach event listeners dynamically
+    attachEventListeners();
 
-    } catch (error) {
-        alert("Failed to search. Ensure the backend is running.");
-    } finally {
-        setLoadingState(searchButton, false);
-    }
+} catch (error) {
+    alert("Failed to search. Ensure the backend is running.");
 }
-
 async function requestMedia(id, title, year, type, seasons = null) {
     if (!id) return alert("Invalid selection.");
 
