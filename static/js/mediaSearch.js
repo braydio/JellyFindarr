@@ -1,4 +1,3 @@
-
 // mediaSearch.js - ES Module for JellyFindarr
 
 const currentPage = { tv: 1, movie: 1 };
@@ -25,26 +24,6 @@ async function searchMedia(type, page) {
         results.items.forEach(item => {
             // Ensure the item has the type property for later use
             item.type = type;
-            listItem.innerHTML = `${item.title} (${item.year || "Unknown Year"}) 
-                <button class="details-btn" data-item='${encodeURIComponent(JSON.stringify(item))}'>Details</button> 
-                <button class="request-btn" data-id="${item.id}" data-title="${item.title}" data-year="${item.year}" data-type="${type}">Request</button>`;
-            resultList.appendChild(listItem);
-        
-    try {
-        let response = await fetch(`/search?query=${encodeURIComponent(query)}&type=${type}&page=${page}`);
-        let results = await response.json();
-
-        let resultList = document.getElementById(type === 'tv' ? "tvShowResults" : "movieResults");
-        resultList.innerHTML = ""; // Clear previous results
-
-        if (results.error || results.items.length === 0) {
-            resultList.innerHTML = `<li>No results found</li>`;
-            return;
-        }
-
-        results.items.forEach(item => {
-            // Ensure the item has the type property for later use
-            item.type = type;
             let listItem = document.createElement("li");
             listItem.innerHTML = `${item.title} (${item.year || "Unknown Year"}) 
                 <button class="details-btn" data-item='${JSON.stringify(item)}'>Details</button> 
@@ -52,20 +31,20 @@ async function searchMedia(type, page) {
             resultList.appendChild(listItem);
         });
 
-    // Show Back to Home button
-    document.getElementById("backToHome").style.display = "block";
+        // Show Back to Home button
+        document.getElementById("backToHome").style.display = "block";
 
-    // Handle pagination buttons
-    currentPage[type] = page;
-    document.getElementById(type === 'tv' ? "prevTvPage" : "prevMoviePage").disabled = page <= 1;
-    document.getElementById(type === 'tv' ? "nextTvPage" : "nextMoviePage").disabled = !results.hasNextPage;
-
-    // Attach event listeners dynamically
-    attachEventListeners();
-
-} catch (error) {
-    alert("Failed to search. Ensure the backend is running.");
+        // Handle pagination buttons
+        currentPage[type] = page;
+        document.getElementById(type === 'tv' ? "prevTvPage" : "prevMoviePage").disabled = page <= 1;
+        document.getElementById(type === 'tv' ? "nextTvPage" : "nextMoviePage").disabled = !results.hasNextPage;
+    } catch (error) {
+        alert("Failed to search. Ensure the backend is running.");
+    } finally {
+        setLoadingState(searchButton, false);
+    }
 }
+
 async function requestMedia(id, title, year, type, seasons = null) {
     if (!id) return alert("Invalid selection.");
 
@@ -85,7 +64,6 @@ async function requestMedia(id, title, year, type, seasons = null) {
 
         let result = await response.json();
         alert(result.message || "Error: " + JSON.stringify(result.error));
-
     } catch (error) {
         alert("Failed to send request.");
     } finally {
@@ -181,23 +159,21 @@ function showDetails(item) {
         document.getElementById("detailsModal").appendChild(requestModalBtn);
     }
     // Remove any previous event listeners on the modal request button
+    let newRequestBtn = requestModalBtn.cloneNode(true);
+    requestModalBtn.replaceWith(newRequestBtn);
 
-      
-      let newRequestBtn = requestModalBtn.cloneNode(true);
-      requestModalBtn.replaceWith(newRequestBtn);
-
-      // Reattach event listener to the new button
-      newRequestBtn.addEventListener("click", () => {
-          if (item.type === "tv") {
-              const selectedSeasons = Array.from(document.querySelectorAll("#seasonForm input[name='season']:checked")).map(cb => cb.value);
-              if (selectedSeasons.length === 0) {
-                  return alert("Please select at least one season.");
-              }
-              requestMedia(item.id, item.title, item.year, "tv", selectedSeasons);
-          } else {
-              requestMedia(item.id, item.title, item.year, "movie");
-          }
-      });
+    // Reattach event listener to the new button
+    newRequestBtn.addEventListener("click", () => {
+        if (item.type === "tv") {
+            const selectedSeasons = Array.from(document.querySelectorAll("#seasonForm input[name='season']:checked")).map(cb => cb.value);
+            if (selectedSeasons.length === 0) {
+                return alert("Please select at least one season.");
+            }
+            requestMedia(item.id, item.title, item.year, "tv", selectedSeasons);
+        } else {
+            requestMedia(item.id, item.title, item.year, "movie");
+        }
+    });
     // Show the modal
     document.getElementById("detailsModal").style.display = "block";
 }
@@ -212,7 +188,7 @@ function goBackToHome() {
     document.getElementById("backToHome").style.display = "none";
 }
 
-// Attach event listeners dynamically
+// Attach event listeners dynamically using event delegation
 document.addEventListener("click", function (event) {
     if (event.target.classList.contains("details-btn")) {
         const item = JSON.parse(decodeURIComponent(event.target.dataset.item));
