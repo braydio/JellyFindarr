@@ -69,12 +69,12 @@ input[type="text"]:focus {
   box-shadow: 0 0 5px var(--accent);
 }
 
-/* Buttons: no default border, minimalist border appears on hover */
+/* Buttons: hidden default border, border appears on hover */
 button {
   padding: 10px 15px;
   margin: 8px;
   background: var(--bg);
-  border: none;
+  border: 1px groove transparent;
   border-radius: 3px;
   color: var(--text);
   cursor: pointer;
@@ -83,7 +83,7 @@ button {
 
 button:hover {
   background: var(--hover);
-  border: 1px solid var(--accent);
+  border: 1px groove var(--accent);
 }
 
 button.loading {
@@ -100,13 +100,14 @@ button:disabled {
 #backToHome {
   display: none;
   background: var(--accent);
+  border: 1px groove transparent;
   color: var(--bg);
   margin-top: 20px;
 }
 
 #backToHome:hover {
   background: var(--hover);
-  border: 1px solid var(--accent);
+  border: 1px groove var(--accent);
 }
 
 /* List Styling */
@@ -144,7 +145,7 @@ li .actions {
   left: 50%;
   transform: translate(-50%, -50%);
   background: var(--container-bg);
-  border: 1px solid var(--border);
+  border: 1px groove var(--border);
   border-radius: 5px;
   padding: 30px;
   width: 90%;
@@ -175,7 +176,7 @@ li .actions {
 
 #detailsModal img {
   width: 200px;
-  border: 1px solid var(--border);
+  border: 1px groove var(--border);
   border-radius: 3px;
   margin: 15px auto;
   display: block;
@@ -189,7 +190,7 @@ li .actions {
 #detailsModal button {
   margin-top: 20px;
   background: var(--bg);
-  border: none;
+  border: 1px solid transparent;
   border-radius: 3px;
   color: var(--text);
   transition: background 0.2s ease, border 0.2s ease;
