@@ -71,10 +71,10 @@ input[type="text"]:focus {
 
 /* Buttons: hidden default border, border appears on hover */
 button {
-  padding: 10px 15px;
-  margin: 8px;
+  padding: 5px 5px;
+  margin: 5px;
   background: var(--bg);
-  border: 1px groove transparent;
+  border: 2px groove var(--accent);
   border-radius: 3px;
   color: var(--text);
   cursor: pointer;
@@ -83,7 +83,7 @@ button {
 
 button:hover {
   background: var(--hover);
-  border: 1px groove var(--accent);
+  border: 2px groove var(--accent);
 }
 
 button.loading {
