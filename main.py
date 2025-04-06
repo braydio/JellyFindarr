@@ -3,7 +3,7 @@ import json
 from flask import Flask, request, jsonify, render_template
 import requests
 from flask_cors import CORS
-from config import SONARR_URL, SONARR_API_KEY, RADARR_URL, RADARR_API_KEY
+from config import SONARR_URL, SONARR_API_KEY, RADARR_URL, RADARR_API_KEY, LIDARR_URL, LIDARR_API_KEY
 
 # Flask setup
 app = Flask(__name__)
@@ -27,6 +27,9 @@ def search_media():
     if media_type == "tv":
         url = f"{SONARR_URL}/api/v3/series/lookup?term={query}"
         headers = {"X-Api-Key": SONARR_API_KEY}
+    elif media_type == "music":
+        url = f"{LIDARR_URL}/api/v3/movie/lookup?term={query}"
+        headers = {"X-Api-Key": LIDARR_API_KEY}
     else:
         url = f"{RADARR_URL}/api/v3/movie/lookup?term={query}"
         headers = {"X-Api-Key": RADARR_API_KEY}
@@ -69,8 +72,12 @@ def request_media():
 
     if media_type == "tv":
         return request_tv_show(media_id, title)
-    else:
+    elif media_type == "movie":
         return request_movie(media_id, title)
+    elif media_type == "music":
+        return request_movie(media_id, title)
+    else:
+        return jsonify({"error": "Invalid media type"}), 400
 
 
 ### **✅ Fetch Correct Sonarr Root Folder**
@@ -164,6 +171,44 @@ def request_movie(tmdb_id, title, year=None):
         return jsonify({"error": response.json()}), response.status_code
 
 
+def get_lidarr_root_folder():
+    """Fetches the first available root folder from Lidarr"""
+    url = f"{LIDARR_URL}/api/v1/rootfolder"
+    headers = {"X-Api-Key": LIDARR_API_KEY}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200 and response.json():
+        return response.json()[0]["path"]
+    return None
+
+def request_music(musicbrainz_id, title):
+    """Send music artist request to Lidarr"""
+    root_folder = get_lidarr_root_folder()
+    if not root_folder:
+        return jsonify({"error": "No valid root folder found in Lidarr"}), 500
+
+    url = f"{LIDARR_URL}/api/v1/artist"
+    payload = {
+        "foreignArtistId": musicbrainz_id,
+        "artistName": title,
+        "qualityProfileId": 1,
+        "rootFolderPath": root_folder,
+        "monitored": True,
+        "addOptions": {
+            "searchForMissingAlbums": True
+        }
+    }
+    headers = {"X-Api-Key": LIDARR_API_KEY}
+
+    print("Sending Request to Lidarr:", url)
+    print("Payload:", json.dumps(payload, indent=4))
+
+    response = requests.post(url, json=payload, headers=headers)
+    print("Response:", response.status_code, response.text)
+
+    if response.status_code in [200, 201]:
+        return jsonify({"message": f"Artist '{title}' added to Lidarr!"})
+    else:
+        return jsonify({"error": response.json()}), response.status_code
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5505, debug=True)
 
