@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +32,7 @@
     </div>
  
     <!-- Music Section -->
-    <div id="musicContainer" >
+    <div id="musicContainer">
       <h2>Find a Music</h2>
       <input type="text" id="musicInput" placeholder="Enter Music Name">
       <button id="searchMusic">Pls Find</button>
@@ -39,7 +40,6 @@
       <button id="prevMusicPage" disabled>Previous</button>
       <button id="nextMusicPage" disabled>Next</button>
     </div>
-
 
     <!-- Back to Home Button -->
     <button id="backToHome" style="display: none;">Home</button>
@@ -63,26 +63,42 @@
     document.getElementById("searchTv").addEventListener("click", () => {
       document.getElementById("tvContainer").style.display = "block";
       document.getElementById("movieContainer").style.display = "none";
+      document.getElementById("musicContainer").style.display = "none";
       searchMedia('tv', 1);
     });
+
     document.getElementById("searchMovie").addEventListener("click", () => {
       document.getElementById("movieContainer").style.display = "block";
       document.getElementById("tvContainer").style.display = "none";
+      document.getElementById("musicContainer").style.display = "none";
       searchMedia('movie', 1);
+    });
+
+    document.getElementById("searchMusic").addEventListener("click", () => {
+      document.getElementById("musicContainer").style.display = "block";
+      document.getElementById("tvContainer").style.display = "none";
+      document.getElementById("movieContainer").style.display = "none";
+      searchMedia('music', 1);
     });
 
     // Pagination buttons
     document.getElementById("prevTvPage").addEventListener("click", () => changePage('tv', -1));
     document.getElementById("nextTvPage").addEventListener("click", () => changePage('tv', 1));
+
     document.getElementById("prevMoviePage").addEventListener("click", () => changePage('movie', -1));
     document.getElementById("nextMoviePage").addEventListener("click", () => changePage('movie', 1));
 
-    // Back to Home (shows both sections again)
+    document.getElementById("prevMusicPage").addEventListener("click", () => changePage('music', -1));
+    document.getElementById("nextMusicPage").addEventListener("click", () => changePage('music', 1));
+
+    // Back to Home (shows all sections again)
     document.getElementById("backToHome").addEventListener("click", () => {
       document.getElementById("tvContainer").style.display = "block";
       document.getElementById("movieContainer").style.display = "block";
+      document.getElementById("musicContainer").style.display = "block";
       goBackToHome();
     });
+
     document.getElementById("closeModal").addEventListener("click", closeModal);
   </script>
 </body>
