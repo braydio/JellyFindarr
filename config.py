@@ -38,9 +38,12 @@ BASE_DIR = Path(__file__).resolve().parent
 INDEX_PATH = "index.html"
 
 # Sonarr & Radarr Config
-SONARR_URL = os.getenv("SONARR_WEB_URL", "localhost:8989")  # Adjust port if needed
-RADARR_URL = os.getenv("RADARR_WEB_URL", "localhost:7878")  # Adjust port if needed
+SONARR_URL = os.getenv("SONARR_WEB_URL", "localhost:8989")
+RADARR_URL = os.getenv("RADARR_WEB_URL", "localhost:7878")
+LIDARR_URL = os.getenv("LIDARR_WEB_URL", "localhost:7878")
+
 SONARR_API_KEY = os.getenv("SONARR_API_KEY")
 RADARR_API_KEY = os.getenv("RADARR_API_KEY")
+LIDARR_API_KEY = os.getenv("LIDARR_API_KEY")
 
-logger.debug(f"IP Addies: {SONARR_URL}  {RADARR_URL}")
+logger.debug(f"IP Addies: {SONARR_URL}  {RADARR_URL}  {LIDARR_URL}")
